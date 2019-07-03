@@ -218,7 +218,7 @@ boot_uart_fifo_init(void)
 	 * to Zephyr issue #8393. This should be removed once the
 	 * issue is fixed in upstream Zephyr.
 	 */
-	irq_unlock(0);
+	// irq_unlock(0);
 
 	return 0;
 }

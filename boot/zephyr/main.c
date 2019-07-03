@@ -175,9 +175,9 @@ void main(void)
             ;
     }
 #endif
-
+    
 #ifdef CONFIG_MCUBOOT_SERIAL
-
+#if 0
     struct device *detect_port;
     u32_t detect_value;
 
@@ -192,13 +192,36 @@ void main(void)
                        &detect_value);
     __ASSERT(rc == 0, "Error of the reading the detect pin.\n");
 
-    if (detect_value == CONFIG_BOOT_SERIAL_DETECT_PIN_VAL) {
+    if (detect_value == CONFIG_BOOT_SERIAL_DETECT_PIN_VAL)
+#endif
+#if 0
+    {
         BOOT_LOG_INF("Enter the serial recovery mode");
         rc = boot_console_init();
         __ASSERT(rc == 0, "Error initializing boot console.\n");
         boot_serial_start(&boot_funcs);
         __ASSERT(0, "Bootloader serial process was terminated unexpectedly.\n");
     }
+#endif
+
+    rc = boot_console_init();
+    assert(rc == 0);
+
+    char str[2];
+    int newline = 0;
+    s64_t start_time = k_uptime_get();
+    
+    BOOT_LOG_INF("Wait:");
+    while (k_uptime_get() - start_time < 10000) {
+        console_read(str, 2, &newline);
+        if(newline == 1){
+            break;
+        }
+    }
+
+    BOOT_LOG_INF("Recovery...");
+    boot_serial_start(&boot_funcs);
+
 #endif
 
 #ifdef CONFIG_BOOT_WAIT_FOR_USB_DFU
