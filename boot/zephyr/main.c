@@ -178,7 +178,7 @@ void main(void)
             ;
     }
 #endif
-
+    
 #ifdef CONFIG_MCUBOOT_SERIAL
 
 #ifdef CONFIG_BOOT_SERIAL_GPIO_DETECT
@@ -206,32 +206,22 @@ void main(void)
 #endif
 
 #ifdef CONFIG_BOOT_SERIAL_UART_DETECT
-   
+    rc = boot_console_init();
+    assert(rc == 0);
+
     char str[2];
-    volatile int newline = 0;
-    volatile int timeout = 10000;
-    int step = 1;
-   
+    int newline = 0;
+    s64_t start_time = k_uptime_get();
+    
     BOOT_LOG_INF("Wait:");
-    while(1){
+    while (newline == 0 && k_uptime_get() - start_time < 10000) {
         console_read(str, 2, &newline);
-        if(newline == 1){
-            break;
-        }
-        
-        timeout -= 1;
-        if(timeout < 1){
-            BOOT_LOG_INF("Booting...");
-            break;
-        }
     }
 
-    if(newline == 1){
+    if (newline == 1) {
         BOOT_LOG_INF("Recovery...");
-        
         boot_serial_start(&boot_funcs);
     }
-
 #endif
 #endif
 
